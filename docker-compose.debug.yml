@@ -1,0 +1,30 @@
+version: '3.7'
+services:
+  web:
+    image: web
+    container_name: web
+    build: .
+    volumes:
+      - './:/usr/src/app'
+    depends_on:
+      - mariadb
+    environment:
+      NODE_ENV: development
+    ports:
+      - '3003:3000'
+      - '9229:9229'
+    command: |
+      sh -c "./wait-for-it.sh mariadb:3306 &&
+             npm run dev"
+  mariadb:
+    image: 'mariadb:latest'
+    restart: always
+    container_name: mariadb
+    volumes:
+      - './dump.sql:/docker-entrypoint-initdb.d/dump.sql'
+    environment:
+      MYSQL_ROOT_PASSWORD: example
+      MYSQL_DATABASE: mabddpourletest
+      MYSQL_INITDB_SKIP_TZINFO: 1
+    ports:
+      - '3307:3306'
